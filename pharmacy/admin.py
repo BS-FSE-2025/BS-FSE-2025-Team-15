@@ -8,3 +8,4 @@ from .models import PharmacyDrug
 admin.site.register(PharmacyManager)
 admin.site.register(Pharmacy)
 admin.site.register(Drug)
+admin.site.register(Guest)
