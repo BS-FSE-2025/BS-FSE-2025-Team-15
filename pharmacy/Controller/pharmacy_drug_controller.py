@@ -43,7 +43,7 @@ def create_drug(request):
         except Exception as e:
             print(f"Error: {e}")
             return JsonResponse({"error": str(e)}, status=500)
-
+ 
 @csrf_exempt
 def delete_drug(request):
     if request.method == 'DELETE':

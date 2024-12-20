@@ -18,11 +18,15 @@ def add_pharmacy_drug(pharmacy_id, drug_name, price):
         if not drug:
             return {"message": "drug does not exist, ask the admin to add it"}
 
-        PharmacyDrug.objects.create(
+        pharmacy_drug, created = PharmacyDrug.objects.get_or_create(
             pharmacy_id=pharmacy_id,
             drug=drug,
-            price=price
+            defaults={"price": price}
         )
+
+        if not created:
+            pharmacy_drug.price = price
+            pharmacy_drug.save()
 
     except Drug.DoesNotExist:
         raise Exception(f"Drug with ID {drug_name} does not exist in ministry of health")

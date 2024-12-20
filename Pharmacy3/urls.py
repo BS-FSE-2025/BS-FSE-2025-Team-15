@@ -16,10 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from pharmacy import views
 urlpatterns = [
        path('admin/', admin.site.urls),
-    path('pharmacy_manager/', include('pharmacy.Router.pharmacy_manager_routes')),
-    path('pharmacy_drug/', include('pharmacy.Router.pharmacy_drug_routes')),
+        path('pharmacy_manager/', include('pharmacy.Router.pharmacy_manager_routes')),
+        path('pharmacy_drug/', include('pharmacy.Router.pharmacy_drug_routes')),
+        path('',views.home, name='home'),
+        path('import-drugs/', views.import_drugs_from_excel, name='import_drugs'),
 
 ]

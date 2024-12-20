@@ -7,9 +7,9 @@ def home(request):
 
 
 import os
-import numpy as np
+# import numpy as np
 from django.conf import settings
-import pandas as pd
+# import pandas as pd
 from django.http import HttpResponse
 from pharmacy.models import Drug
 
