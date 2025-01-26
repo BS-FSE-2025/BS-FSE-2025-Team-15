@@ -1,7 +1,10 @@
 from django.test import TestCase
+
+from .Utils.location_utils import calculate_street_distance
 from .models import Drug, PharmacyDrug, PharmacyManager, Pharmacy
 from pharmacy.DataBaseService.pharmacy_drug_service import add_pharmacy_drug,delete_drug,update_drug_and_pharmacy_drug
-from pharmacy.DataBaseService.pharmacy_manager_service import get_pharmacy_manager,delete_pharmacy_manager
+from pharmacy.DataBaseService.pharmacy_manager_service import get_pharmacy_manager, delete_pharmacy_manager, \
+    get_pharmacy_by_city
 
 
 class PharmacyServiceTests(TestCase):
@@ -22,6 +25,21 @@ class PharmacyServiceTests(TestCase):
             drug=self.drug,
             price=100.0
         )
+        self.success_response_data = {
+            "features": [{
+                "properties": {
+                    "city": "כסיפה",
+                    "lat": 31.2465374,
+                    "lon": 35.0930574,
+                    "formatted": "כסיפה, South District, Israel",
+                    "country_code": "il"
+                }
+            }]
+        }
+
+    def test_successful_address_lookup(self):
+        distance = calculate_street_distance(32.0853,34.7818,31.2521,34.7868)
+        print(distance)
 
     def test_add_pharmacy_drug_success(self):
         response = add_pharmacy_drug(self.pharmacy.id, self.drug.name, 150.0)

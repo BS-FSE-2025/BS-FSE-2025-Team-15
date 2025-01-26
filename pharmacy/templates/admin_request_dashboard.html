@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Admin Requests Dashboard</title>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+   <style>
+       .navbar {
+           background: linear-gradient(45deg, #0d6efd, #0099ff);
+           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+       }
+
+       .request-card {
+           transition: transform 0.2s, box-shadow 0.2s;
+           border-left: 4px solid transparent;
+       }
+
+       .request-card:hover {
+           transform: translateY(-5px);
+           box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+           border-left: 4px solid #0d6efd;
+       }
+
+       .status-badge {
+           padding: 8px 16px;
+           border-radius: 20px;
+           font-weight: 600;
+       }
+
+       .status-pending {
+           background-color: #fff3cd;
+           color: #856404;
+       }
+
+       .status-in-progress {
+           background-color: #cfe2ff;
+           color: #084298;
+       }
+
+       .status-completed {
+           background-color: #d4edda;
+           color: #155724;
+       }
+
+       .status-rejected {
+           background-color: #f8d7da;
+           color: #721c24;
+       }
+
+       .request-card {
+            border-left-width: 4px;
+            border-left-style: solid;
+        }
+
+        .request-card.status-pending {
+            border-left-color: #ffc107;
+        }
+
+        .request-card.status-in-progress {
+            border-left-color: #0d6efd;
+        }
+
+        .request-card.status-completed {
+            border-left-color: #198754;
+        }
+
+        .request-card.status-rejected {
+            border-left-color: #dc3545;
+        }
+   </style>
+</head>
+<body class="bg-light">
+   <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+       <div class="container">
+           <span class="navbar-brand d-flex align-items-center">
+               <i class="bi bi-shield-lock me-2"></i>
+               <span>Admin Dashboard</span>
+           </span>
+
+           <div class="navbar-nav me-auto mx-4">
+               <a class="nav-link" href="{% url 'admin_drugs_dashboard' %}">
+                   <i class="bi bi-capsule me-1"></i>Drugs
+               </a>
+               <a class="nav-link" href="{% url 'admin_managers_dashboard' %}">
+                   <i class="bi bi-people me-1"></i>Managers
+               </a>
+               <a class="nav-link active" href="{% url 'admin_request_dashboard' %}">
+                   <i class="bi bi-inbox me-1"></i>Requests
+               </a>
+           </div>
+
+           <form method="POST" action="{% url 'logout' %}" class="m-0">
+               {% csrf_token %}
+               <button type="submit" class="btn btn-light">
+                   <i class="bi bi-box-arrow-right me-1"></i>Logout
+               </button>
+           </form>
+       </div>
+   </nav>
+
+   <div class="container py-4">
+       <div class="d-flex justify-content-between align-items-center mb-4">
+           <h4><i class="bi bi-inbox-fill me-2"></i>Manager Requests</h4>
+           <div class="d-flex gap-2">
+               <div class="dropdown">
+                   <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                       <i class="bi bi-funnel me-1"></i>Filter by Status
+                   </button>
+                   <ul class="dropdown-menu">
+                       <li><a class="dropdown-item" href="#">All Requests</a></li>
+                       <li><a class="dropdown-item" href="#">Pending</a></li>
+                       <li><a class="dropdown-item" href="#">In Progress</a></li>
+                       <li><a class="dropdown-item" href="#">Completed</a></li>
+                       <li><a class="dropdown-item" href="#">Rejected</a></li>
+                   </ul>
+               </div>
+           </div>
+       </div>
+
+       {% for request in requests %}
+       <div class="card request-card mb-3 status-{{ request.status|lower }}">
+           <div class="card-body">
+               <div class="row align-items-center">
+                   <div class="col">
+                       <h5 class="card-title mb-1">{{ request.manager.pharmacy.name }}</h5>
+                       <p class="text-muted mb-0">
+                           <small>
+                               <i class="bi bi-person me-1"></i>
+                               {{ request.manager.first_name }} {{ request.manager.last_name }}
+                           </small>
+                       </p>
+                   </div>
+                   <div class="col-auto">
+                       <span class="status-badge status-{{ request.status|lower }}">
+                           {{ request.status }}
+                       </span>
+                   </div>
+                   <div class="col">
+                       <p class="mb-0">{{ request.content }}</p>
+                   </div>
+                   <div class="col-auto">
+                       <button class="btn btn-outline-primary btn-sm me-2"
+                               data-bs-toggle="modal"
+                               data-bs-target="#editRequestModal{{ request.id }}">
+                           <i class="bi bi-pencil me-1"></i>Update Status
+                       </button>
+                       <button class="btn btn-outline-danger btn-sm"
+                               data-bs-toggle="modal"
+                               data-bs-target="#deleteRequestModal{{ request.id }}">
+                           <i class="bi bi-trash"></i>
+                       </button>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <!-- Edit Request Modal -->
+       <div class="modal fade" id="editRequestModal{{ request.id }}">
+           <div class="modal-dialog">
+               <div class="modal-content">
+                   <div class="modal-header">
+                       <h5 class="modal-title">Update Request Status</h5>
+                       <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                   </div>
+                   <form method="POST" action="{% url 'edit_request' %}">
+                       {% csrf_token %}
+                       <input type="hidden" name="request_id" value="{{ request.id }}">
+                       <div class="modal-body">
+                           <div class="mb-3">
+                               <label class="form-label">Status</label>
+                               <select name="status" class="form-select" required>
+                                   <option value="PENDING" {% if request.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                   <option value="IN_PROGRESS" {% if request.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                                   <option value="COMPLETED" {% if request.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                   <option value="REJECTED" {% if request.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                               </select>
+                           </div>
+                       </div>
+                       <div class="modal-footer">
+                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                           <button type="submit" class="btn btn-primary">Save Changes</button>
+                       </div>
+                   </form>
+               </div>
+           </div>
+       </div>
+
+       <!-- Delete Request Modal -->
+       <div class="modal fade" id="deleteRequestModal{{ request.id }}">
+           <div class="modal-dialog">
+               <div class="modal-content">
+                   <div class="modal-header bg-danger text-white">
+                       <h5 class="modal-title">Delete Request</h5>
+                       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                   </div>
+                   <div class="modal-body">
+                       <p>Are you sure you want to delete this request?</p>
+                   </div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                       <form method="POST" action="{% url 'delete_request' request_id=request.id %}">
+                           {% csrf_token %}
+                           <button type="submit" class="btn btn-danger">Delete</button>
+                       </form>
+                   </div>
+               </div>
+           </div>
+       </div>
+       {% endfor %}
+   </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
