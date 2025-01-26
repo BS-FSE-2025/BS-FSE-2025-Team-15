@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Manager Signup</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 40px 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            background: linear-gradient(45deg, #0d6efd, #0a58ca);
+            padding: 2rem 1rem;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 10px 15px;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.15);
+        }
+        .btn-primary {
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            background: linear-gradient(45deg, #0d6efd, #0a58ca);
+            border: none;
+        }
+        .location-info {
+            background-color: #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header text-center text-white">
+                        <i class="bi bi-prescription2 fs-1 mb-2"></i>
+                        <h2 class="mb-0">Create Your Pharmacy Account</h2>
+                        <p class="mb-0 opacity-75">Join our network of pharmacy managers</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" action="{% url 'create_pharmacy_manager' %}" class="row g-3">
+                            {% csrf_token %}
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="bi bi-person me-2"></i>First Name
+                                </label>
+                                <input type="text" class="form-control" name="first_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="bi bi-person me-2"></i>Last Name
+                                </label>
+                                <input type="text" class="form-control" name="last_name" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="bi bi-envelope me-2"></i>Email
+                                </label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="bi bi-phone me-2"></i>Phone Number
+                                </label>
+                                <input type="tel" class="form-control" name="phone_number">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">
+                                    <i class="bi bi-lock me-2"></i>Password
+                                </label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">
+                                    <i class="bi bi-shop me-2"></i>Pharmacy Name
+                                </label>
+                                <input type="text" class="form-control" name="pharmacy_name" required>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="location-info">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-geo-alt fs-4 me-2 text-primary"></i>
+                                        <h5 class="mb-0">Pharmacy Location</h5>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-control" name="address"
+                                               placeholder="Enter full address" required>
+                                        <small class="text-muted">
+                                            Enter complete address including street, city, and country
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-person-plus me-2"></i>Create Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-white text-center py-3">
+                        <p class="mb-0">Already have an account?
+                            <a href="{% url 'login' %}"
+                               class="text-primary text-decoration-none">Login</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
