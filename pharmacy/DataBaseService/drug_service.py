@@ -52,4 +52,3 @@ def get_drugs(drug_id=None):
             return all_drugs
     except Exception as e:
         raise e
-# commit check

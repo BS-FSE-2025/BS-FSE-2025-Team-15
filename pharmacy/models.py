@@ -6,6 +6,7 @@ class Pharmacy(models.Model):
     name = models.CharField(max_length=255)
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
+    city = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -14,8 +15,8 @@ class Pharmacy(models.Model):
 
 
 class PharmacyManager(models.Model):
-    first_name = models.CharField(max_length=150, unique=True)
-    last_name = models.CharField(max_length=150, unique=True)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
     email = models.EmailField(max_length=255, unique=True, blank=False)
     password = models.CharField(max_length=128)
     role = models.CharField(max_length=20, choices=Roles, default='guest')
@@ -52,4 +53,22 @@ class PharmacyDrug(models.Model):
     def __str__(self):
         return f"{self.drug.name} in {self.pharmacy.name}"
 
+
+class Admin(models.Model):
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)  # Will store hashed password
+    role = models.CharField(max_length=20, choices=Roles, default='ADMIN')
+
+    def __str__(self):
+        return self.email
+
+
+class Request(models.Model):
+    content = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default='PENDING')
+    manager = models.ForeignKey(PharmacyManager, on_delete=models.CASCADE, related_name='requests')
+
+    def __str__(self):
+        return self.content
 
