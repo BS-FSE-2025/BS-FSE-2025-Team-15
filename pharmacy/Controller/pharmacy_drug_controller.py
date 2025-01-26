@@ -1,4 +1,5 @@
 from django.http import JsonResponse, HttpResponseRedirect
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 import pharmacy.DataBaseService.pharmacy_drug_service as pharmacy_drug_service
@@ -43,31 +44,23 @@ def create_drug(request):
         except Exception as e:
             print(f"Error: {e}")
             return JsonResponse({"error": str(e)}, status=500)
- 
-@csrf_exempt
-def delete_drug(request):
-    if request.method == 'DELETE':
-        try:
-            data = json.loads(request.body)
-            drug_id = data.get('drug_id')
-
-            if not drug_id:
-                return JsonResponse({"error": "drug_id is required."}, status=400)
-
-            pharmacy_drug_service.delete_drug(drug_id)
-
-            return JsonResponse({"message": "Drug and related PharmacyDrug deleted successfully!"}, status=200)
-        except Exception as e:
-            print(f"Error: {e}")
-            return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
-def update_drug(request):
-    if request.method == 'PUT':
+def delete_drug(request, drug_id):
+    try:
+        pharmacy_drug_service.delete_drug(drug_id)
+        return HttpResponseRedirect('/pharmacy_manager/dashboard/')
+    except Exception as e:
+        print(f"Error: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def update_drug(request, drug_id):
+    if request.method == 'POST':
         try:
             pharmacy_id = request.session.get('manager_id')
-            drug_id = request.PUT.get('id')
-            price = request.PUT.get('price')
+            price = request.POST.get('price')
+            print(pharmacy_id,drug_id,price)
             pharmacy_drug_service.update_drug_and_pharmacy_drug(drug_id, price, pharmacy_id)
             return HttpResponseRedirect('/pharmacy_manager/dashboard/')
 
@@ -80,13 +73,43 @@ def get_drug(request):
     if request.method == 'GET':
         try:
             drug_id = request.GET.get('drug_id')
+            search_query = request.GET.get('search', '')
+            pharmacy_id = request.GET.get('pharmacy_id')
+            manager_id = request.session.get('manager_id')
 
+            # Get the pharmacy data
+            pharmacy = PharmacyManager.objects.get(pharmacy_id=pharmacy_id)
+
+            # Get drugs data
             if drug_id:
-                drug = pharmacy_drug_service.get_drug_and_pharmacy_drug(drug_id)
-                return JsonResponse(drug, safe=False, status=200)
+                drugs = [pharmacy_drug_service.get_drug_and_pharmacy_drug(drug_id)]
+            else:
+                drugs = pharmacy_drug_service.get_drug_and_pharmacy_drug(
+                    pharmacy_id=pharmacy_id,
+                    search_query=search_query
+                )
 
-            drugs = pharmacy_drug_service.get_drug_and_pharmacy_drug()
-            return JsonResponse(drugs, safe=False, status=200)
+            context = {
+                'drugs': drugs,
+                'pharmacy_id': pharmacy_id,
+                'pharmacy_name': pharmacy.pharmacy.name,
+                'first_name': {pharmacy.first_name},
+                'last_name':  {pharmacy.last_name},
+                "latitude":  pharmacy.pharmacy.latitude,
+                "longitude": pharmacy.pharmacy.longitude,
+            }
+
+            return render(request, 'pharmacy_manager_dashboard.html', context)
+
         except Exception as e:
             print(f"Error: {e}")
             return JsonResponse({"error": str(e)}, status=500)
+
+
+
+
+
+def drug_search(search_query,pharmacy_id):
+    if search_query:
+        drugs = pharmacy_drug_service.get_drugs_by_query_search(search_query,pharmacy_id)
+        return drugs
